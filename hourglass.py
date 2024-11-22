@@ -23,11 +23,38 @@ def autoplay_audio(file_path):
 
 
 def create_hourglass_app():
+    # ページ設定
     st.set_page_config(
         page_title="シンプルタイマー",
         page_icon="⌛",
         initial_sidebar_state="collapsed",
+        layout="wide"
     )
+
+    # CSSでレスポンシブデザインを適用
+    st.markdown("""
+        <style>
+        .main {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .stApp {
+            max-height: 100vh;
+            overflow: hidden;
+        }
+        .timer-display {
+            margin: 0.5rem 0;
+        }
+        .st-emotion-cache-1y4p8pa {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        div[data-testid="stVerticalBlock"] {
+            gap: 0.5rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
     # セッション状態の初期化
     if 'is_running' not in st.session_state:
         st.session_state.is_running = False
@@ -40,9 +67,9 @@ def create_hourglass_app():
     # カスタム時間設定（メイン画面上部）
     col1, col2, col3, col4 = st.columns([1.2, 1.2, 1.2, 1.5])
     with col1:
-        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1)
+        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1, label_visibility="collapsed")
     with col2:
-        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=1)
+        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=1, label_visibility="collapsed")
     with col3:
         st.write("")  # 空白を入れてボタンの位置を合わせる
         st.write("")
@@ -162,13 +189,22 @@ def create_hourglass_app():
             ))
             
             fig.update_layout(
-                width=300,
-                height=300,
+                width=250,
+                height=250,
                 margin=dict(l=0, r=0, t=0, b=0),
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)'
             )
-            
+            # プログレスバーのマージンを調整
+            st.markdown("""
+                <style>
+                .stProgress {
+                    margin-top: 0.5rem;
+                    margin-bottom: 0.5rem;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+
             # 中央揃えのためのカラムを作成
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
