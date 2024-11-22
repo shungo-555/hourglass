@@ -208,5 +208,6 @@ def create_hourglass_app():
         if st.session_state.start_time is None:
             st.write("時間を選択して開始してください")
 
+
 if __name__ == "__main__":
     create_hourglass_app()
