@@ -23,12 +23,20 @@ def autoplay_audio(file_path):
 
 
 def create_hourglass_app():
+    st.set_page_config(
+        page_title="シンプルタイマー",
+        page_icon="⌛",
+        initial_sidebar_state="collapsed",
+    )
     # セッション状態の初期化
     if 'is_running' not in st.session_state:
         st.session_state.is_running = False
 
-    st.title("⌛")
-    
+    if 'sound_played' not in st.session_state:
+        st.session_state.sound_played = False
+
+    st.title("⌛シンプルタイマー")
+
     # カスタム時間設定（メイン画面上部）
     col1, col2, col3, col4 = st.columns([1.2, 1.2, 1.2, 1.5])
     with col1:
@@ -88,12 +96,12 @@ def create_hourglass_app():
     
     with timer_cols[0]:
         if st.session_state.is_running:
-            if st.button("一時停止 ⏸", type="secondary", use_container_width=True):
+            if st.button("一時停止", type="secondary", use_container_width=True):
                 st.session_state.is_running = False
                 st.session_state.paused_time = datetime.now()
                 st.rerun()
         elif st.session_state.paused_time is not None:
-            if st.button("再開 ▶", type="primary", use_container_width=True):
+            if st.button("再開", type="primary", use_container_width=True):
                 # 一時停止していた時間を考慮して開始時刻を調整
                 pause_duration = (datetime.now() - st.session_state.paused_time).total_seconds()
                 st.session_state.start_time = st.session_state.start_time + timedelta(seconds=pause_duration)
@@ -103,7 +111,7 @@ def create_hourglass_app():
 
     with timer_cols[1]:
         if st.session_state.is_running or st.session_state.paused_time is not None:
-            if st.button("キャンセル ✕", type="secondary", use_container_width=True):
+            if st.button("キャンセル", type="secondary", use_container_width=True):
                 st.session_state.is_running = False
                 st.session_state.start_time = None
                 st.session_state.paused_time = None
@@ -117,10 +125,13 @@ def create_hourglass_app():
         st.session_state.remaining_time = remaining
         
         if remaining <= 0:
-            st.success("⏰ 時間になりました！")
-            # 音声を再生
-            audio_path = get_audio_file_path()
-            st.markdown(autoplay_audio(audio_path), unsafe_allow_html=True)
+            if not st.session_state.sound_played:
+                st.success("⏰ 時間になりました！")
+                # 音声を再生
+                audio_path = get_audio_file_path()
+                st.markdown(autoplay_audio(audio_path), unsafe_allow_html=True)
+                st.session_state.sound_played = True
+            
             st.session_state.is_running = False
             st.session_state.start_time = None
             st.session_state.paused_time = None
@@ -143,7 +154,6 @@ def create_hourglass_app():
                 values=[st.session_state.total_seconds - remaining, remaining],
                 # labels=['経過時間', '残り時間'],
                 hole=0.3,
-                # rotation=0,  # 12時の位置からスタート
                 direction='clockwise',  # 時計回り
                 marker_colors=['#FFA07A', '#E0E0E0'],  # 薄いオレンジと灰色
                 textinfo='none',
@@ -168,6 +178,10 @@ def create_hourglass_app():
             time.sleep(0.1)
             st.rerun()
     
+    elif st.session_state.start_time is None:
+        # タイマーがリセットされたときの処理
+        st.session_state.sound_played = False
+
     elif st.session_state.paused_time is not None:
         # 一時停止中の表示
         remaining = st.session_state.remaining_time
@@ -185,7 +199,6 @@ def create_hourglass_app():
                 values=[st.session_state.total_seconds - remaining, remaining],
                 # labels=['経過時間', '残り時間'],
                 hole=0.3,
-                # rotation=0,  # 12時の位置からスタート
                 direction='clockwise',  # 時計回り
                 marker_colors=['#FFA07A', '#E0E0E0'],  # 薄いオレンジと灰色
                 textinfo='none',
