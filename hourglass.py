@@ -54,7 +54,6 @@ def create_hourglass_app():
         }
         </style>
     """, unsafe_allow_html=True)
-    
     # セッション状態の初期化
     if 'is_running' not in st.session_state:
         st.session_state.is_running = False
@@ -65,11 +64,57 @@ def create_hourglass_app():
     st.title("⌛シンプルタイマー")
 
     # カスタム時間設定（メイン画面上部）
+    # カスタムHTMLのnumber input
+    st.markdown("""
+        <style>
+        /* number inputのスタイル */
+        .number-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.3rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+        /* Streamlitのデフォルトのnumber inputを非表示 */
+        .st-emotion-cache-1x8cf1d {
+            display: none;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     col1, col2, col3, col4 = st.columns([1.2, 1.2, 1.2, 1.5])
+
     with col1:
-        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1, label_visibility="collapsed")
+        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1, 
+                                label_visibility="collapsed")
+        st.markdown("""
+            <style>
+            /* iOSでの数値入力を最適化 */
+            input[type="number"] {
+                -webkit-appearance: none;
+                margin: 0;
+                -moz-appearance: textfield;
+                text-align: center;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+    
     with col2:
-        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=1, label_visibility="collapsed")
+        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=1, 
+                                label_visibility="collapsed")
+        st.markdown("""
+            <style>
+            /* iOSでの数値入力を最適化 */
+            input[type="number"] {
+                -webkit-appearance: none;
+                margin: 0;
+                -moz-appearance: textfield;
+                text-align: center;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
     with col3:
         st.write("")  # 空白を入れてボタンの位置を合わせる
         st.write("")
