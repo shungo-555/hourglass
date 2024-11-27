@@ -22,99 +22,39 @@ def autoplay_audio(file_path):
         """
 
 
+def init_session_state():
+    """セッション状態の初期化"""
+    default_states = {
+        'is_running': False,
+        'sound_played': False,
+        'start_time': None,
+        'total_seconds': 0,
+        'paused_time': None,
+        'remaining_time': 0
+    }
+    
+    for key, default_value in default_states.items():
+        if key not in st.session_state:
+            st.session_state[key] = default_value
+
+
 def create_hourglass_app():
-    # ページ設定
     st.set_page_config(
         page_title="シンプルタイマー",
         page_icon="⌛",
         initial_sidebar_state="collapsed",
-        layout="wide"
     )
-
-    # CSSでレスポンシブデザインを適用
-    st.markdown("""
-        <style>
-        .main {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-        .stApp {
-            max-height: 100vh;
-            overflow: hidden;
-        }
-        .timer-display {
-            margin: 0.5rem 0;
-        }
-        .st-emotion-cache-1y4p8pa {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-        div[data-testid="stVerticalBlock"] {
-            gap: 0.5rem;
-        }
-        </style>
-    """, unsafe_allow_html=True)
     # セッション状態の初期化
-    if 'is_running' not in st.session_state:
-        st.session_state.is_running = False
-
-    if 'sound_played' not in st.session_state:
-        st.session_state.sound_played = False
+    init_session_state()
 
     st.title("⌛シンプルタイマー")
 
     # カスタム時間設定（メイン画面上部）
-    # カスタムHTMLのnumber input
-    st.markdown("""
-        <style>
-        /* number inputのスタイル */
-        .number-input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 0.3rem;
-            font-size: 1rem;
-            text-align: center;
-        }
-        /* Streamlitのデフォルトのnumber inputを非表示 */
-        .st-emotion-cache-1x8cf1d {
-            display: none;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
     col1, col2, col3, col4 = st.columns([1.2, 1.2, 1.2, 1.5])
-
     with col1:
-        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1, 
-                                label_visibility="collapsed")
-        st.markdown("""
-            <style>
-            /* iOSでの数値入力を最適化 */
-            input[type="number"] {
-                -webkit-appearance: none;
-                margin: 0;
-                -moz-appearance: textfield;
-                text-align: center;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-    
+        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1, label_visibility="collapsed")
     with col2:
-        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=1, 
-                                label_visibility="collapsed")
-        st.markdown("""
-            <style>
-            /* iOSでの数値入力を最適化 */
-            input[type="number"] {
-                -webkit-appearance: none;
-                margin: 0;
-                -moz-appearance: textfield;
-                text-align: center;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-
+        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=1, label_visibility="collapsed")
     with col3:
         st.write("")  # 空白を入れてボタンの位置を合わせる
         st.write("")
@@ -141,14 +81,6 @@ def create_hourglass_app():
         "5分": 300,
         "10分": 600
     }
-    
-    # メイン画面の状態管理
-    if 'start_time' not in st.session_state:
-        st.session_state.start_time = None
-        st.session_state.is_running = False
-        st.session_state.total_seconds = 0
-        st.session_state.paused_time = None
-        st.session_state.remaining_time = 0
     
     # クイックスタートボタンの配置
     for i, (label, seconds) in enumerate(preset_times.items()):
@@ -197,17 +129,19 @@ def create_hourglass_app():
         st.session_state.remaining_time = remaining
         
         if remaining <= 0:
-            if not st.session_state.sound_played:
-                st.success("⏰ 時間になりました！")
-                # 音声を再生
-                audio_path = get_audio_file_path()
-                st.markdown(autoplay_audio(audio_path), unsafe_allow_html=True)
-                st.session_state.sound_played = True
-            
             st.session_state.is_running = False
             st.session_state.start_time = None
             st.session_state.paused_time = None
             st.session_state.remaining_time = 0
+            
+            # 音の再生処理を最後に移動し、rerunの前に実行
+            if not st.session_state.sound_played:
+                st.success("⏰ 時間になりました！")
+                audio_path = get_audio_file_path()
+                st.markdown(autoplay_audio(audio_path), unsafe_allow_html=True)
+                st.session_state.sound_played = True
+                time.sleep(0.5)  # 音を確実に再生するために少し待機
+                st.rerun()
         else:
             # プログレスバーの表示
             progress = 1 - (remaining / st.session_state.total_seconds)
@@ -217,9 +151,9 @@ def create_hourglass_app():
             mins = int(remaining // 60)
             secs = int(remaining % 60)
             if mins > 0:
-                st.markdown(f"<h1 style='text-align: center;'>残り時間: {mins:02d}:{secs:02d}</h1>", unsafe_allow_html=True)
+                st.markdown(f"<h2 style='text-align: center;'>残り時間: {mins:02d}:{secs:02d}</h2>", unsafe_allow_html=True)
             else:
-                st.markdown(f"<h1 style='text-align: center;'>残り時間: {secs}秒</h1>", unsafe_allow_html=True)
+                st.markdown(f"<h2 style='text-align: center;'>残り時間: {secs}秒</h2>", unsafe_allow_html=True)
             
             # 円グラフによる砂時計表示
             fig = go.Figure(go.Pie(
@@ -240,16 +174,7 @@ def create_hourglass_app():
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)'
             )
-            # プログレスバーのマージンを調整
-            st.markdown("""
-                <style>
-                .stProgress {
-                    margin-top: 0.5rem;
-                    margin-bottom: 0.5rem;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-
+            
             # 中央揃えのためのカラムを作成
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
@@ -272,9 +197,9 @@ def create_hourglass_app():
         mins = int(remaining // 60)
         secs = int(remaining % 60)
         if mins > 0:
-            st.markdown(f"<h1 style='text-align: center;'>一時停止中: {mins:02d}:{secs:02d}</h1>", unsafe_allow_html=True)
+            st.markdown(f"<h2 style='text-align: center;'>一時停止中: {mins:02d}:{secs:02d}</h2>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<h1 style='text-align: center;'>一時停止中: {secs}秒</h1>", unsafe_allow_html=True)
+            st.markdown(f"<h2 style='text-align: center;'>一時停止中: {secs}秒</h2>", unsafe_allow_html=True)
             
             fig = go.Figure(go.Pie(
                 values=[st.session_state.total_seconds - remaining, remaining],
