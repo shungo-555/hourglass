@@ -140,7 +140,7 @@ def create_hourglass_app():
                 audio_path = get_audio_file_path()
                 st.markdown(autoplay_audio(audio_path), unsafe_allow_html=True)
                 st.session_state.sound_played = True
-                time.sleep(0.5)  # 音を確実に再生するために少し待機
+                time.sleep(20)
                 st.rerun()
         else:
             # プログレスバーの表示
