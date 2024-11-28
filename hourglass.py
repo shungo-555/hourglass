@@ -7,21 +7,6 @@ import os
 import base64
 
 
-def get_audio_file_path():
-    return os.path.join("static", "success.mp3")
-
-
-def autoplay_audio(file_path):
-    with open(file_path, "rb") as f:
-        data = f.read()
-        b64 = base64.b64encode(data).decode()
-        return f"""
-            <audio autoplay>
-                <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-            </audio>
-        """
-
-
 def init_session_state():
     """セッション状態の初期化"""
     default_states = {
@@ -137,9 +122,8 @@ def create_hourglass_app():
             # 音の再生処理を最後に移動し、rerunの前に実行
             if not st.session_state.sound_played:
                 st.success("⏰ 時間になりました！")
-                audio_path = get_audio_file_path()
-                st.markdown(autoplay_audio(audio_path), unsafe_allow_html=True)
-                st.session_state.sound_played = True
+                with st.expander(''):
+                    st.audio("static/success.mp3", format="audio/mpeg", autoplay=True)
                 time.sleep(20)
                 st.rerun()
         else:
