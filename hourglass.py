@@ -37,9 +37,9 @@ def create_hourglass_app():
     # カスタム時間設定（メイン画面上部）
     col1, col2, col3, col4 = st.columns([1.2, 1.2, 1.2, 1.5])
     with col1:
-        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1, label_visibility="collapsed")
+        minutes = st.number_input("分", min_value=0, max_value=60, value=0, step=1)
     with col2:
-        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=1, label_visibility="collapsed")
+        seconds = st.number_input("秒", min_value=0, max_value=59, value=30, step=5)
     with col3:
         st.write("")  # 空白を入れてボタンの位置を合わせる
         st.write("")
@@ -122,6 +122,7 @@ def create_hourglass_app():
             # 音の再生処理を最後に移動し、rerunの前に実行
             if not st.session_state.sound_played:
                 st.success("⏰ 時間になりました！")
+                st.balloons()
                 with st.expander(''):
                     st.audio("static/success.mp3", format="audio/mpeg", autoplay=True)
                 time.sleep(20)
