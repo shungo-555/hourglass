@@ -119,11 +119,11 @@ def create_hourglass_app():
             st.session_state.paused_time = None
             st.session_state.remaining_time = 0
             
-            # 音の再生処理を最後に移動し、rerunの前に実行
             if not st.session_state.sound_played:
+                st.session_state.sound_played = True
                 # st.success("⏰ 時間になりました！")
                 st.balloons()
-                with st.expander('時間になりました！', icon="⏰"):
+                with st.expander('時間になりました！', expanded=True, icon="⏰"):
                     st.audio("static/success.mp3", format="audio/mpeg", autoplay=True)
                 time.sleep(20)
                 st.rerun()
