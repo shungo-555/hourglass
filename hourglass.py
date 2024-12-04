@@ -128,10 +128,6 @@ def create_hourglass_app():
                 time.sleep(20)
                 st.rerun()
         else:
-            # プログレスバーの表示
-            progress = 1 - (remaining / st.session_state.total_seconds)
-            st.progress(progress)
-            
             # 残り時間の表示
             mins = int(remaining // 60)
             secs = int(remaining % 60)
@@ -176,9 +172,6 @@ def create_hourglass_app():
     elif st.session_state.paused_time is not None:
         # 一時停止中の表示
         remaining = st.session_state.remaining_time
-        progress = 1 - (remaining / st.session_state.total_seconds)
-        st.progress(progress)
-        
         mins = int(remaining // 60)
         secs = int(remaining % 60)
         if mins > 0:
